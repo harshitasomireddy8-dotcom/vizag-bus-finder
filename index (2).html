@@ -1,0 +1,1163 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vizag Transit Buddy</title>
+
+<!-- Leaflet map library -->
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f2f8ff;
+    color: #173653;
+}
+
+header {
+    background: #075b9b;
+    color: white;
+    padding: 18px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+header h2 {
+    font-size: 23px;
+}
+
+nav {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    color: #bce7ff;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+}
+
+.language {
+    background: white;
+    color: #075b9b;
+    padding: 9px 13px;
+    border-radius: 7px;
+    font-weight: bold;
+}
+
+.hero {
+    background: linear-gradient(120deg, #075b9b, #168bd0);
+    color: white;
+    padding: 75px 8%;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 42px;
+    margin-bottom: 18px;
+}
+
+.hero p {
+    font-size: 18px;
+    line-height: 1.7;
+    max-width: 700px;
+    margin: auto;
+}
+
+.primary-btn {
+    display: inline-block;
+    margin-top: 25px;
+    background: white;
+    color: #075b9b;
+    padding: 13px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+section {
+    padding: 50px 8%;
+}
+
+.section-title {
+    text-align: center;
+    color: #075b9b;
+    font-size: 29px;
+    margin-bottom: 12px;
+}
+
+.section-description {
+    text-align: center;
+    color: #637b91;
+    margin-bottom: 28px;
+}
+
+.search-box {
+    max-width: 850px;
+    margin: auto;
+    background: white;
+    padding: 28px;
+    border-radius: 15px;
+    box-shadow: 0 5px 22px #0b4d7915;
+}
+
+.search-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+select, input, textarea {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #c8d9e8;
+    border-radius: 7px;
+    background: #fbfdff;
+    font-size: 15px;
+}
+
+.search-btn {
+    width: 100%;
+    margin-top: 22px;
+    background: #0879bd;
+    color: white;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.search-btn:hover {
+    background: #064f85;
+}
+
+.results {
+    max-width: 850px;
+    margin: 25px auto 0;
+}
+
+.route-card {
+    background: white;
+    border-left: 5px solid #168bd0;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 12px #0000000c;
+}
+
+.route-card h3 {
+    color: #075b9b;
+    margin-bottom: 10px;
+}
+
+.route-card p {
+    margin: 7px 0;
+    line-height: 1.5;
+}
+
+.route-tag {
+    display: inline-block;
+    background: #dff2ff;
+    color: #075b9b;
+    padding: 6px 10px;
+    border-radius: 20px;
+    margin: 5px 5px 5px 0;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.notice {
+    background: #fff5d9;
+    border: 1px solid #e9d39a;
+    padding: 13px;
+    border-radius: 8px;
+    color: #70551a;
+    margin-top: 15px;
+    line-height: 1.5;
+    font-size: 13px;
+}
+
+.places {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.place-card {
+    background: white;
+    padding: 20px 10px;
+    text-align: center;
+    border-radius: 12px;
+    border: 1px solid #d5e7f5;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.place-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px #075b9b20;
+}
+
+.place-card span {
+    display: block;
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.place-card h3 {
+    color: #075b9b;
+    font-size: 15px;
+}
+
+#map {
+    height: 400px;
+    width: 100%;
+    border-radius: 12px;
+    border: 2px solid #d5e7f5;
+    margin-top: 25px;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 25px;
+}
+
+.feature-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 3px 12px #0000000b;
+}
+
+.feature-card .emoji {
+    font-size: 35px;
+}
+
+.feature-card h3 {
+    color: #075b9b;
+    margin: 12px 0;
+}
+
+.feature-card p {
+    color: #637b91;
+    line-height: 1.5;
+}
+
+.faq-item {
+    background: white;
+    margin: 12px auto;
+    max-width: 850px;
+    border-radius: 9px;
+    overflow: hidden;
+}
+
+.faq-question {
+    width: 100%;
+    padding: 17px;
+    background: white;
+    color: #075b9b;
+    text-align: left;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.faq-answer {
+    display: none;
+    padding: 0 17px 17px;
+    color: #536c81;
+    line-height: 1.6;
+}
+
+.faq-item.active .faq-answer {
+    display: block;
+}
+
+.feedback-box {
+    max-width: 650px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px #0000000c;
+}
+
+.feedback-box input,
+.feedback-box textarea,
+.feedback-box select {
+    margin-bottom: 15px;
+}
+
+.feedback-box textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+footer {
+    background: #073b65;
+    color: white;
+    text-align: center;
+    padding: 25px;
+    line-height: 1.8;
+}
+
+@media(max-width: 750px) {
+    header {
+        justify-content: center;
+        text-align: center;
+    }
+
+    nav {
+        justify-content: center;
+    }
+
+    .hero h1 {
+        font-size: 31px;
+    }
+
+    .search-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .places {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .features {
+        grid-template-columns: 1fr;
+    }
+
+    #map {
+        height: 320px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+    <h2>🚌 Vizag Transit Buddy</h2>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#search">Bus Search</a>
+        <a href="#locations">Locations</a>
+        <a href="#map-section">Map</a>
+        <a href="#faqs">FAQs</a>
+        <a href="#feedback">Feedback</a>
+    </nav>
+
+    <button class="language" onclick="changeLanguage()">
+        తెలుగు
+    </button>
+</header>
+
+<!-- HOME -->
+<div class="hero" id="home">
+    <h1 id="heroTitle">
+        Explore Vizag. Travel Smarter!
+    </h1>
+
+    <p id="heroText">
+        Your local public transport guide for Visakhapatnam.
+        Find bus routes, explore popular locations and compare
+        estimated fares with Vizag Transit Buddy.
+    </p>
+
+    <a href="#search" class="primary-btn">
+        Plan Your Journey →
+    </a>
+</div>
+
+<!-- BUS SEARCH -->
+<section id="search">
+
+    <h2 class="section-title">Find Your Bus Route</h2>
+
+    <p class="section-description">
+        Select your starting point and destination.
+    </p>
+
+    <div class="search-box">
+
+        <div class="search-fields">
+
+            <div>
+                <label for="from">From Location</label>
+
+                <select id="from">
+                    <option value="">Select Starting Point</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="to">To Location</label>
+
+                <select id="to">
+                    <option value="">Select Destination</option>
+                </select>
+            </div>
+
+        </div>
+
+        <button class="search-btn" onclick="searchBus()">
+            🔍 Search Bus Routes
+        </button>
+
+        <button class="search-btn"
+                style="background:#dff2ff;color:#075b9b"
+                onclick="swapLocations()">
+            ⇅ Swap Locations
+        </button>
+
+    </div>
+
+    <div class="results" id="results"></div>
+
+</section>
+
+<!-- POPULAR LOCATIONS -->
+<section id="locations" style="background:#e8f4fd">
+
+    <h2 class="section-title">Popular Vizag Locations</h2>
+
+    <p class="section-description">
+        Select a location to set it as your starting point.
+    </p>
+
+    <div class="places" id="places"></div>
+
+</section>
+
+<!-- MAP -->
+<section id="map-section">
+
+    <h2 class="section-title">Interactive Vizag Map</h2>
+
+    <p class="section-description">
+        Explore important locations around Visakhapatnam.
+    </p>
+
+    <div id="map"></div>
+
+</section>
+
+<!-- FEATURES -->
+<section style="background:#e8f4fd">
+
+    <h2 class="section-title">Why Vizag Transit Buddy?</h2>
+
+    <div class="features">
+
+        <div class="feature-card">
+            <div class="emoji">🚌</div>
+            <h3>Easy Bus Search</h3>
+            <p>
+                Find sample routes between popular
+                locations in Visakhapatnam.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="emoji">💰</div>
+            <h3>Fare Comparison</h3>
+            <p>
+                Compare estimated fares and discover
+                the cheapest sample route.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="emoji">🌐</div>
+            <h3>Two Languages</h3>
+            <p>
+                Switch between Telugu and English
+                for an easier experience.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- FAQ -->
+<section id="faqs">
+
+    <h2 class="section-title">Frequently Asked Questions</h2>
+
+    <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+            1. What is Vizag Transit Buddy?
+            <span>＋</span>
+        </button>
+        <div class="faq-answer">
+            Vizag Transit Buddy is a public transport guide
+            prototype designed for people travelling around
+            Visakhapatnam.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+            2. Are the bus timings official?
+            <span>＋</span>
+        </button>
+        <div class="faq-answer">
+            No. The current bus numbers, timings and fares
+            are sample data for demonstration. They are
+            not verified APSRTC information.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+            3. Can I find the cheapest route?
+            <span>＋</span>
+        </button>
+        <div class="faq-answer">
+            Yes. The application compares the sample routes
+            and highlights the lowest estimated fare.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+            4. Does the application support Telugu?
+            <span>＋</span>
+        </button>
+        <div class="faq-answer">
+            Yes. You can switch between Telugu and English
+            using the language button.
+        </div>
+    </div>
+
+</section>
+
+<!-- FEEDBACK -->
+<section id="feedback" style="background:#e8f4fd">
+
+    <h2 class="section-title">Share Your Feedback</h2>
+
+    <p class="section-description">
+        Help us improve the travelling experience in Vizag.
+    </p>
+
+    <div class="feedback-box">
+
+        <form id="feedbackForm">
+
+            <label for="name">Your Name</label>
+            <input type="text" id="name"
+                   placeholder="Enter your name">
+
+            <label for="feedbackType">Feedback Type</label>
+
+            <select id="feedbackType">
+                <option>Suggestion</option>
+                <option>Bug Report</option>
+                <option>Incorrect Information</option>
+                <option>Other</option>
+            </select>
+
+            <label for="message">Your Feedback</label>
+
+            <textarea id="message"
+                      placeholder="Write your feedback..."
+                      required></textarea>
+
+            <button class="search-btn" type="submit">
+                Submit Feedback
+            </button>
+
+        </form>
+
+        <p id="feedbackStatus" role="status"></p>
+
+    </div>
+
+</section>
+
+<footer>
+    <h3>🚌 Vizag Transit Buddy</h3>
+
+    <p>Your City. Your Bus. Your Journey.</p>
+
+    <p>Visakhapatnam, Andhra Pradesh</p>
+
+    <small>
+        Student Hackathon Project | Sample Transit Data
+        | Not an official APSRTC application
+    </small>
+</footer>
+
+
+<!-- JAVASCRIPT -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+// ======================================
+// 1. LOCATION DATA
+// ======================================
+
+const locations = [
+    { name: "RTC Complex", lat: 17.7275, lng: 83.3032, icon: "🚏" },
+    { name: "Railway Station", lat: 17.7215, lng: 83.2890, icon: "🚉" },
+    { name: "Venkojipalem", lat: 17.7520, lng: 83.3270, icon: "🏘️" },
+    { name: "MVP Colony", lat: 17.7445, lng: 83.3380, icon: "🏘️" },
+    { name: "Waltair", lat: 17.7180, lng: 83.3100, icon: "🚏" },
+    { name: "AU Outgate", lat: 17.7350, lng: 83.3250, icon: "🎓" },
+    { name: "Jagadamba Junction", lat: 17.7115, lng: 83.3010, icon: "🛍️" },
+    { name: "Old Post Office", lat: 17.7100, lng: 83.2970, icon: "🏢" },
+    { name: "Purna Market", lat: 17.7090, lng: 83.2960, icon: "🛒" },
+    { name: "Convent Junction", lat: 17.7100, lng: 83.2910, icon: "🚏" },
+    { name: "Scindia", lat: 17.6860, lng: 83.2530, icon: "🏭" },
+    { name: "Yarada", lat: 17.6580, lng: 83.2710, icon: "🏖️" },
+    { name: "HB Colony", lat: 17.7470, lng: 83.3120, icon: "🏘️" },
+    { name: "Sitammadhara", lat: 17.7400, lng: 83.3100, icon: "🏘️" },
+    { name: "Satyam Junction", lat: 17.7350, lng: 83.3100, icon: "🚏" },
+    { name: "Town Kotharoad", lat: 17.7110, lng: 83.2950, icon: "🚏" },
+    { name: "Kommadi", lat: 17.8050, lng: 83.3530, icon: "🏘️" },
+    { name: "Ratnagiri HB Colony", lat: 17.7860, lng: 83.3550, icon: "🏘️" },
+    { name: "PM Palem", lat: 17.7880, lng: 83.3550, icon: "🏘️" },
+    { name: "Endada", lat: 17.7750, lng: 83.3500, icon: "🚏" },
+    { name: "Maddilapalem", lat: 17.7397, lng: 83.3220, icon: "🏙️" },
+    { name: "Gurudwara", lat: 17.7300, lng: 83.3100, icon: "🚏" },
+    { name: "NAD Junction", lat: 17.7470, lng: 83.2500, icon: "🚦" },
+    { name: "BHPV", lat: 17.7160, lng: 83.1980, icon: "🏭" },
+    { name: "Gajuwaka", lat: 17.7000, lng: 83.2167, icon: "🏭" },
+    { name: "Mindi", lat: 17.6910, lng: 83.2300, icon: "🏘️" },
+    { name: "Sundarayya Colony", lat: 17.6910, lng: 83.2100, icon: "🏘️" },
+    { name: "Pedagantyada", lat: 17.6800, lng: 83.2200, icon: "🏘️" },
+    { name: "Nadupur Dairy Colony", lat: 17.6750, lng: 83.2200, icon: "🏘️" },
+    { name: "Airport", lat: 17.7210, lng: 83.2250, icon: "✈️" },
+    { name: "Gantyada HB Colony", lat: 17.6750, lng: 83.2150, icon: "🏘️" },
+    { name: "Kurmannapalem", lat: 17.6820, lng: 83.1750, icon: "🏘️" },
+    { name: "IT Park", lat: 17.7750, lng: 83.3650, icon: "💻" },
+    { name: "Carshed", lat: 17.7650, lng: 83.3550, icon: "🚏" },
+    { name: "Janatha Colony", lat: 17.6870, lng: 83.2450, icon: "🏘️" },
+    { name: "Steel Plant Sector 5", lat: 17.6900, lng: 83.1800, icon: "🏭" },
+    { name: "Marikavalasa", lat: 17.8000, lng: 83.3650, icon: "🏘️" },
+    { name: "Nadupuru", lat: 17.6740, lng: 83.2250, icon: "🏘️" },
+    { name: "Steel Plant Sector 11", lat: 17.6900, lng: 83.1600, icon: "🏭" },
+    { name: "Duvvada Railway Station", lat: 17.7000, lng: 83.1570, icon: "🚉" },
+    { name: "Ravindra Nagar", lat: 17.7500, lng: 83.3100, icon: "🏘️" },
+    { name: "Adarsha Nagar", lat: 17.7450, lng: 83.3150, icon: "🏘️" },
+    { name: "Yendada Village", lat: 17.7850, lng: 83.3550, icon: "🏘️" },
+    { name: "Rushikonda", lat: 17.7830, lng: 83.3850, icon: "🏖️" },
+    { name: "Simhachalam", lat: 17.7650, lng: 83.2000, icon: "⛰️" },
+    { name: "Gopalapatnam", lat: 17.7550, lng: 83.2200, icon: "🏘️" },
+    { name: "Malkapuram", lat: 17.6800, lng: 83.2400, icon: "🏭" },
+    { name: "Old Gajuwaka", lat: 17.6950, lng: 83.2150, icon: "🏘️" },
+    { name: "Arilova Colony", lat: 17.7650, lng: 83.3150, icon: "🏘️" },
+    { name: "Collector Office", lat: 17.7100, lng: 83.3000, icon: "🏢" },
+    { name: "Anandapuram", lat: 17.8500, lng: 83.3500, icon: "🏘️" },
+    { name: "Tagarapuvalasa", lat: 17.9300, lng: 83.4200, icon: "🏘️" },
+    { name: "Aganampudi", lat: 17.6500, lng: 83.1400, icon: "🏘️" },
+    { name: "Anakapalle", lat: 17.6910, lng: 83.0030, icon: "🏙️" },
+    { name: "MVP Complex", lat: 17.7445, lng: 83.3380, icon: "🏙️" },
+    { name: "Vepagunta", lat: 17.7800, lng: 83.2200, icon: "🏘️" },
+    { name: "Pendurthi", lat: 17.8200, lng: 83.2050, icon: "🏘️" },
+    { name: "Kothavalasa", lat: 17.8900, lng: 83.1800, icon: "🏘️" },
+    { name: "RK Beach", lat: 17.7126, lng: 83.3230, icon: "🌊" },
+    { name: "Dwaraka Nagar", lat: 17.7280, lng: 83.3050, icon: "🚉" },
+    { name: "GITAM", lat: 17.7820, lng: 83.3730, icon: "🎓" },
+    { name: "Mangamaripeta", lat: 17.8100, lng: 83.3900, icon: "🏖️" },
+    { name: "INS Kalinga", lat: 17.8500, lng: 83.4000, icon: "⚓" },
+    { name: "Bheemili", lat: 17.8900, lng: 83.4500, icon: "🏖️" }
+];
+   
+
+
+// ======================================
+// 2. SAMPLE BUS ROUTE DATABASE
+// ======================================
+
+// All values below are illustrative.
+// These are NOT verified APSRTC services.
+
+const buses = [
+
+   {number:"14",from:"Venkojipalem",to:"Old Post Office",stops:["Venkojipalem","MVP Colony","Waltair","AU Outgate","Jagadamba Junction","Town Kotharoad","Old Post Office"],depot:"Waltair",fare:null,time:null,status:"unverified"},
+
+{number:"16",from:"Purna Market",to:"Yarada",stops:["Purna Market","Convent Junction","Scindia","Naval Base","Yarada"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"20A",from:"HB Colony",to:"Old Post Office",stops:["HB Colony","Sitammadhara","Satyam Junction","RTC Complex","Jagadamba Junction","Town Kotharoad","Old Post Office"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"25E",from:"Old Post Office",to:"Kommadi",stops:["Old Post Office","Jagadamba Junction","RTC Complex","Maddilapalem","Endada","Madhurawada","Kommadi"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"25P",from:"Ratnagiri HB Colony",to:"Old Post Office",stops:["Ratnagiri HB Colony","PM Palem","Endada","Maddilapalem","RTC Complex","Jagadamba Junction","Old Post Office"],depot:"Maddilapalem",fare:null,time:null,status:"unverified"},
+
+{number:"38",from:"RTC Complex",to:"Gajuwaka",stops:["RTC Complex","Gurudwara","NAD Junction","BHPV","Gajuwaka"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"38A",from:"RTC Complex",to:"Mindi",stops:["RTC Complex","Gurudwara","NAD Junction","BHPV","Mindi"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"38C",from:"RTC Complex",to:"Sundarayya Colony",stops:["RTC Complex","Gurudwara","NAD Junction","BHPV","Gajuwaka","Sundarayya Colony"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"38D",from:"RTC Complex",to:"Nadupur Dairy Colony",stops:["RTC Complex","Gurudwara","NAD Junction","BHPV","Gajuwaka","Pedagantyada","Nadupur Dairy Colony"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"38H",from:"RTC Complex",to:"Gantyada HB Colony",stops:["RTC Complex","Airport","Gurudwara","NAD Junction","BHPV","Gajuwaka","Pedagantyada","Gantyada HB Colony"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"38IT",from:"Kurmannapalem",to:"IT Park",stops:["Kurmannapalem","Gajuwaka","NAD Junction","Gurudwara","RTC Complex","Maddilapalem","Carshed","IT Park"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"38J",from:"RTC Complex",to:"Janatha Colony",stops:["RTC Complex","Gurudwara","NAD Junction","BHPV","Gajuwaka","Scindia","Janatha Colony"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"38K",from:"RTC Complex",to:"Steel Plant Sector 5",stops:["RTC Complex","Gurudwara","NAD Junction","BHPV","Gajuwaka","Steel Plant Sector 5"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"38M",from:"Marikavalasa",to:"Kurmannapalem",stops:["Marikavalasa","Madhurawada","Maddilapalem","Gurudwara","NAD Junction","BHPV","Gajuwaka","Kurmannapalem"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"38N",from:"RTC Complex",to:"Nadupuru",stops:["RTC Complex","Gurudwara","NAD Junction","BHPV","Gajuwaka","Pedagantyada","Nadupuru"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"38T",from:"RTC Complex",to:"Steel Plant Sector 11",stops:["RTC Complex","Gurudwara","NAD Junction","BHPV","Gajuwaka","Kurmannapalem","Steel Plant Sector 11"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"38Y",from:"RTC Complex",to:"Duvvada Railway Station",stops:["RTC Complex","Gurudwara","NAD Junction","BHPV","Gajuwaka","Kurmannapalem","Duvvada Railway Station"],depot:"Gajuwaka",fare:null,time:null,status:"unverified"},
+
+{number:"52D",from:"Ravindra Nagar",to:"Old Post Office",stops:["Ravindra Nagar","Adarsha Nagar","Maddilapalem","RTC Complex","Jagadamba Junction","Town Kotharoad","Old Post Office"],depot:"Waltair",fare:null,time:null,status:"unverified"},
+
+{number:"52E",from:"Yendada Village",to:"Old Post Office",stops:["Yendada Village","Rushikonda","Endada","Maddilapalem","RTC Complex","Jagadamba Junction","Town Kotharoad","Old Post Office"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"55",from:"Simhachalam",to:"Scindia",stops:["Simhachalam","Gopalapatnam","NAD Junction","BHPV","Gajuwaka","Malkapuram","Scindia"],depot:"Waltair",fare:null,time:null,status:"unverified"},
+
+{number:"60",from:"Simhachalam",to:"Old Post Office",stops:["Simhachalam","Adavivaram","Maddilapalem","RTC Complex","Jagadamba Junction","Old Post Office"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"69",from:"Arilova Colony",to:"Railway Station",stops:["Arilova Colony","HB Colony","Sitammadhara","Satyam Junction","RTC Complex","Railway Station"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"99",from:"Collector Office",to:"Gajuwaka",stops:["Collector Office","Jagadamba Junction","Town Kotharoad","Convent Junction","Scindia","Malkapuram","Gajuwaka"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"222",from:"RTC Complex",to:"Tagarapuvalasa",stops:["RTC Complex","Maddilapalem","Endada","Madhurawada","Anandapuram","Tagarapuvalasa"],depot:"Maddilapalem",fare:null,time:null,status:"unverified"},
+
+{number:"400",from:"RTC Complex",to:"Kurmannapalem",stops:["RTC Complex","Railway Station","Scindia","Malkapuram","Gajuwaka","Kurmannapalem"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"500",from:"RTC Complex",to:"Anakapalle",stops:["RTC Complex","Gurudwara","NAD Junction","Gajuwaka","Kurmannapalem","Aganampudi","Anakapalle"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"540",from:"MVP Complex",to:"Simhachalam",stops:["MVP Complex","Maddilapalem","Gurudwara","NAD Junction","Gopalapatnam","Simhachalam"],depot:"Maddilapalem",fare:null,time:null,status:"unverified"},
+
+{number:"541",from:"Maddilapalem",to:"Kothavalasa",stops:["Maddilapalem","Gurudwara","NAD Junction","Gopalapatnam","Vepagunta","Pendurthi","Kothavalasa"],depot:"Maddilapalem",fare:null,time:null,status:"unverified"},
+
+{number:"900K",from:"Railway Station",to:"Bheemili",stops:["Railway Station","Waltair","MVP Colony","Rushikonda","GITAM","Mangamaripeta","INS Kalinga","Bheemili"],depot:null,fare:null,time:null,status:"unverified"},
+
+{number:"999",from:"RTC Complex",to:"Bheemili",stops:["RTC Complex","Maddilapalem","Endada","Madhurawada","Anandapuram","Bheemili"],depot:null,fare:null,time:null,status:"unverified"}
+];
+
+// ======================================
+// 3. ADD LOCATIONS TO DROPDOWN
+// ======================================
+
+const fromSelect = document.getElementById("from");
+const toSelect = document.getElementById("to");
+
+function loadLocations() {
+
+    locations.forEach(location => {
+
+        const option1 = document.createElement("option");
+        option1.value = location.name;
+        option1.textContent = location.name;
+
+        const option2 = option1.cloneNode(true);
+
+        fromSelect.appendChild(option1);
+        toSelect.appendChild(option2);
+
+    });
+
+    fromSelect.value = "RTC Complex";
+    toSelect.value = "RK Beach";
+
+}
+
+loadLocations();
+
+
+// ======================================
+// 4. POPULAR LOCATION CARDS
+// ======================================
+
+const placesContainer = document.getElementById("places");
+
+locations.slice(0, 5).forEach(location => {
+
+    const card = document.createElement("div");
+
+    card.className = "place-card";
+
+    card.innerHTML = `
+        <span>${location.icon}</span>
+        <h3>${location.name}</h3>
+    `;
+
+    card.addEventListener("click", () => {
+
+        fromSelect.value = location.name;
+
+        document.getElementById("search")
+            .scrollIntoView({ behavior: "smooth" });
+
+    });
+
+    placesContainer.appendChild(card);
+
+});
+
+
+// ======================================
+// 5. SWAP LOCATIONS
+// ======================================
+
+function swapLocations() {
+
+    const first = fromSelect.value;
+
+    fromSelect.value = toSelect.value;
+    toSelect.value = first;
+
+}
+
+
+// ======================================
+// 6. SEARCH BUS ROUTES
+// ======================================
+
+function searchBus() {
+
+    const from = fromSelect.value;
+    const to = toSelect.value;
+
+    const results = document.getElementById("results");
+
+    results.innerHTML = "";
+
+    if (!from || !to) {
+
+        results.innerHTML =
+            "<p>Please select both locations.</p>";
+
+        return;
+
+    }
+
+    if (from === to) {
+
+        results.innerHTML =
+            "<p>Starting point and destination cannot be the same.</p>";
+
+        return;
+
+    }
+
+    const matchingBuses = buses.filter(bus =>
+        bus.from === from && bus.to === to
+    );
+
+    if (matchingBuses.length === 0) {
+
+        results.innerHTML = `
+            <div class="route-card">
+                <h3>No sample route available</h3>
+                <p>
+                    We currently do not have a demonstration
+                    route for ${from} to ${to}.
+                </p>
+                <p>
+                    Actual route information needs to be
+                    verified with APSRTC.
+                </p>
+            </div>
+        `;
+
+        clearRouteFromMap();
+
+        return;
+
+    }
+
+    const cheapest = [...matchingBuses].sort(
+        (a, b) => a.fare - b.fare
+    )[0];
+
+    const fastest = [...matchingBuses].sort(
+        (a, b) => a.time - b.time
+    )[0];
+
+    matchingBuses.forEach(bus => {
+
+        let tags = "";
+
+        if (bus === cheapest) {
+            tags += `<span class="route-tag">💰 CHEAPEST</span>`;
+        }
+
+        if (bus === fastest) {
+            tags += `<span class="route-tag">⚡ FASTEST</span>`;
+        }
+
+        const card = document.createElement("div");
+
+        card.className = "route-card";
+
+        card.innerHTML = `
+            ${tags}
+
+            <h3>🚌 Sample Bus: ${bus.number}</h3>
+
+            <p><b>From:</b> ${bus.from}</p>
+
+            <p><b>To:</b> ${bus.to}</p>
+
+            <p><b>Bus Stops:</b>
+                ${bus.stops.join(" → ")}
+            </p>
+
+           <p><b>Estimated Journey Time:</b>
+    ${bus.time != null ? bus.time + " minutes" : "30 minutes(sample)"}
+</p>
+
+<p><b>Approximate Fare:</b>
+    ${bus.fare != null ? "₹" + bus.fare : "₹20(sample)"}
+</p>
+
+<p><b>Operating Hours:</b>
+    ${bus.start && bus.end
+        ? bus.start + " - " + bus.end
+        : "6:00 AM - 9:00 PM (sample)"}
+</p>
+            <p>
+                <b>Note:</b> Demonstration data only.
+            </p>
+        `;
+
+        results.appendChild(card);
+
+    });
+
+    results.innerHTML += `
+        <div class="notice">
+            ⚠️ Sample information only. Bus numbers, stops,
+            timings and fares have not been verified by APSRTC.
+            Please confirm actual services before travelling.
+        </div>
+    `;
+
+    showRouteOnMap(from, to);
+
+    results.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
+
+
+// ======================================
+// 7. INTERACTIVE MAP
+// ======================================
+
+let map;
+let routeLine;
+
+function initializeMap() {
+
+    map = L.map("map").setView(
+        [17.7275, 83.3032],
+        12
+    );
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            attribution: "&copy; OpenStreetMap contributors"
+        }
+    ).addTo(map);
+
+    locations.forEach(location => {
+
+        L.marker([
+            location.lat,
+            location.lng
+        ])
+        .addTo(map)
+        .bindPopup(
+            `<b>${location.name}</b><br>Approximate landmark`
+        );
+
+    });
+
+}
+
+function showRouteOnMap(from, to) {
+
+    const start = locations.find(
+        location => location.name === from
+    );
+
+    const end = locations.find(
+        location => location.name === to
+    );
+
+    if (!start || !end) return;
+
+    clearRouteFromMap();
+
+    routeLine = L.polyline(
+        [
+            [start.lat, start.lng],
+            [end.lat, end.lng]
+        ],
+        {
+            color: "#0879bd",
+            weight: 5,
+            dashArray: "10, 8"
+        }
+    ).addTo(map);
+
+    map.fitBounds(routeLine.getBounds(), {
+        padding: [40, 40]
+    });
+
+}
+
+function clearRouteFromMap() {
+
+    if (routeLine) {
+
+        map.removeLayer(routeLine);
+
+        routeLine = null;
+
+    }
+
+}
+
+initializeMap();
+
+
+// ======================================
+// 8. TELUGU / ENGLISH LANGUAGE
+// ======================================
+
+let telugu = false;
+
+function changeLanguage() {
+
+    telugu = !telugu;
+
+    document.querySelector(".language").textContent =
+        telugu ? "English" : "తెలుగు";
+
+    document.getElementById("heroTitle").textContent =
+        telugu
+        ? "విశాఖను అన్వేషించండి. సులభంగా ప్రయాణించండి!"
+        : "Explore Vizag. Travel Smarter!";
+
+    document.getElementById("heroText").textContent =
+        telugu
+        ? "విశాఖపట్నంలో ప్రజా రవాణా కోసం మీ స్థానిక గైడ్. బస్సు మార్గాలు, ప్రాంతాలు మరియు అంచనా ఛార్జీలను తెలుసుకోండి."
+        : "Your local public transport guide for Visakhapatnam. Find bus routes, explore popular locations and compare estimated fares with Vizag Transit Buddy.";
+
+}
+
+
+// ======================================
+// 9. FAQ INTERACTION
+// ======================================
+
+function toggleFAQ(button) {
+
+    const item = button.parentElement;
+
+    item.classList.toggle("active");
+
+    const symbol = button.querySelector("span");
+
+    if (symbol) {
+
+        symbol.textContent =
+            item.classList.contains("active") ? "−" : "＋";
+
+    }
+
+}
+
+
+// ======================================
+// 10. FEEDBACK FORM
+// ======================================
+
+document.getElementById("feedbackForm")
+.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const name =
+        document.getElementById("name").value.trim();
+
+    const type =
+        document.getElementById("feedbackType").value;
+
+    const message =
+        document.getElementById("message").value.trim();
+
+    if (!message) {
+
+        alert("Please enter your feedback.");
+
+        return;
+
+    }
+
+    // Demo feedback acknowledgement.
+    // A backend is required for permanent storage.
+
+    console.log({
+        name: name,
+        type: type,
+        message: message
+    });
+
+    document.getElementById("feedbackStatus")
+        .textContent =
+        "Thank you! Your feedback was received in this demo.";
+
+    alert("Thank you for your feedback!");
+
+    this.reset();
+
+});
+
+</script>
+
+</body>
+</html>
